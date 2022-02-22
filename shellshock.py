@@ -54,9 +54,9 @@ class Shocker:
             fixed_url = self.target + "/"
             return fixed_url
 
-    def base64encode(self,make_fifo):
-        make_fifo_bytes = make_fifo.encode("ascii")
-        base64_bytes = base64.b64encode(make_fifo_bytes)
+    def base64encode(self,string):
+        string_bytes = string.encode("ascii")
+        base64_bytes = base64.b64encode(string_bytes)
         base64_string = base64_bytes.decode("ascii")
 
         return base64_string
