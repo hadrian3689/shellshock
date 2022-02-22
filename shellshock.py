@@ -113,4 +113,5 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='CVE 2014-6271 - ShellShock Remote Code Execution')
     parser.add_argument('-t', metavar='<Target URL>', help='Example: -t http://shock.me/', required=True)
     args = parser.parse_args()
+    
     Shocker(args.t)
