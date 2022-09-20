@@ -1,8 +1,4 @@
-# Project Title
-
-CVE-2014-6271 Shellshock
-
-## Description
+# CVE-2014-6271 Shellshock
 
 A python3 script for the CVE-2014-6271 Shellshock exploit that creates a reverse shell or a pseudo interactive shell using mkfifo for firewall evasion
 
